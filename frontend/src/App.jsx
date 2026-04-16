@@ -15,6 +15,9 @@ import {
   ChevronRight
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { motion, AnimatePresence } from 'framer-motion';
 import './index.css';
 
 const API_URL = 'http://localhost:5000/api';
@@ -141,21 +144,55 @@ function App() {
         </header>
 
         <div className="messages-container">
-          {messages.map((msg, index) => (
-            <div key={index} className={`message ${msg.role}`}>
-              <div className="message-icon">
-                {msg.role === 'ai' ? <Bot size={20} color="var(--accent-color)" /> : <User size={20} />}
-              </div>
-              <div className="message-content">
-                <ReactMarkdown>{msg.content}</ReactMarkdown>
-              </div>
-            </div>
-          ))}
+          <AnimatePresence>
+            {messages.map((msg, index) => (
+              <motion.div 
+                key={index} 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className={`message ${msg.role}`}
+              >
+                <div className="message-icon">
+                  {msg.role === 'ai' ? <Bot size={20} color="var(--accent-color)" /> : <User size={20} />}
+                </div>
+                <div className="message-content">
+                  <ReactMarkdown
+                    components={{
+                      code({node, inline, className, children, ...props}) {
+                        const match = /language-(\w+)/.exec(className || '')
+                        return !inline && match ? (
+                          <SyntaxHighlighter
+                            style={atomDark}
+                            language={match[1]}
+                            PreTag="div"
+                            {...props}
+                          >
+                            {String(children).replace(/\n$/, '')}
+                          </SyntaxHighlighter>
+                        ) : (
+                          <code className={className} {...props}>
+                            {children}
+                          </code>
+                        )
+                      }
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
           {isLoading && (
-            <div className="message ai typing">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="message ai typing"
+            >
               <Sparkles size={16} className="animate-pulse" />
               <span>Genius is thinking...</span>
-            </div>
+            </motion.div>
           )}
           <div ref={messagesEndRef} />
         </div>
@@ -163,8 +200,10 @@ function App() {
         {messages.length === 1 && (
           <div className="quick-prompts-container" style={{ padding: '0 2rem', display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
             {quickPrompts.map((prompt, i) => (
-              <button 
+              <motion.button 
                 key={i} 
+                whileHover={{ scale: 1.02, y: -5 }}
+                whileTap={{ scale: 0.98 }}
                 className="quick-prompt" 
                 onClick={() => setInput(prompt.text)}
                 style={{
@@ -178,12 +217,12 @@ function App() {
                   flexDirection: 'column',
                   gap: '0.5rem',
                   flex: 1,
-                  transition: 'all 0.2s'
+                  transition: 'background-color 0.2s'
                 }}
               >
                 {prompt.icon}
                 <span style={{ fontSize: '0.85rem', textAlign: 'left' }}>{prompt.text}</span>
-              </button>
+              </motion.button>
             ))}
           </div>
         )}
