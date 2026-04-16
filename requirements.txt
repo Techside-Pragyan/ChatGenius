@@ -1,0 +1,19 @@
+### ChatGenius System Requirements
+
+#### Core Dependencies (Node.js)
+- express: Web framework for the backend API.
+- cors: Cross-Origin Resource Sharing.
+- dotenv: Environment variable management.
+- @google/generative-ai: SDK for Google Gemini AI.
+- axios: HTTP client for frontend-backend communication.
+- react-markdown: For rendering AI responses in Markdown.
+- lucide-react: Premium iconography.
+
+#### AI Model
+- Google Gemini 1.5 Flash (API Key Required)
+
+#### UI Theme
+- Dark Mode / Deep Slate & Sky Blue
+- Glassmorphism effects
+- Responsive sidebar
+- Code syntax highlighting (Ready for PrismJS/Highlight.js)
